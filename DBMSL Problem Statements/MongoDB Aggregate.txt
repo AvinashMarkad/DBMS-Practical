@@ -1,0 +1,60 @@
+----------------------------------------------------------------------------------------------
+
+Create the collection books having the following fields    TITLE, DESCRIPTION, AUTHOR, URL, TAGS AND LIKES.
+      Implement the following Aggregation and Indexing Queries 
+    1. Find the number of books published author john.
+    2. Find books which have minimum likes and maximum likes published author john.
+    3. Find the average number of likes of the books published author john.
+    4. Find the first and last book published author john..
+    5. Create an index on author name.
+Display the books published author john and check if it uses the index which we have created
+
+/*************************************************************************************************************************/
+
+FIND THE NUMBER OF books PUBLISHED AUTHOR john
+
+select author,count(*) as no_of_documents from books where author="john" group by author;   -------mysql
+
+>  db.books.aggregate([{$match:{author:"john"}},{$group:{_id:"$author",no_of_documents:{$sum:1}}}])
+{ "_id" : "john", "no_of_documents" : 2 }
+
+/**************************************************************************************************************************/
+
+FIND books WHICH HAVE MINIMUM LIKES AND MAXIMUM LIKES PUBLISHED AUTHOR john
+
+select author,min(likes) as likes from books where author="john" group by author; ---------------mysql
+
+> db.books.aggregate([{$match:{author:"john"}},{$group:{_id:"$author",minimum_likes:{$min:"$likes"}}}])
+{ "_id" : "john", "minimum_likes" : 50 }
+
+select author,max(likes) as likes from books where author="john" group author author;    ----------------mysql
+> db.books.aggregate([{$match:{author:"john"}},{$group:{_id:"$author",maximum_likes:{$max:"$likes"}}}])
+{ "_id" : "john", "minimum_likes" : 100 }
+
+/**************************************************************************************************************************/
+
+FIND THE AVERAGE NUMBER OF LIKES OF THE books PUBLISHED AUTHOR john
+select author,avg(likes) from books where author='john' group by author; ------------mysql
+> db.books.aggregate([{$match:{author:"john"}},{$group:{_id:"$author",avg_likes:{$avg:"$likes"}}}])
+{ "_id" : "john", "avg_likes" : 75 }
+
+/**************************************************************************************************************************/
+
+FIND THE FIRST AND LAST BOOK PUBLISHED AUTHOR john
+
+db.books.aggregate([{$match:{author:"john"}},{$group:{_id:"$author",first_book:{$first:"$title"}}}])
+{ "_id" : "john", "first_book" : "MONGO DB OVERVIEW" }
+
+> db.books.aggregate([{$match:{author:"john"}},{$group:{_id:"$author",last_book:{$last:"$title"}}}])
+{ "_id" : "john", "last_book" : "NOSQL" }
+
+/**************************************************************************************************************************/
+
+CREATE AN INDEX ON AUTHOR NAME
+
+> db.books.ensureIndex({"author":1})		
+
+ OR
+> db.books.createIndex({"author":1})		
+
+/**************************************************************************************************************************/
