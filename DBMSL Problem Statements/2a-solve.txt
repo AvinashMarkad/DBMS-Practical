@@ -1,0 +1,167 @@
+Here are the SQL queries to create the tables, alter them to include constraints, create views, add indexes, and complete all other tasks outlined.
+
+---
+
+### 1. **Create Tables with the Given Schema and Insert Data**
+
+```sql
+-- Create Student Table
+CREATE TABLE Student (
+    StudID INT,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Marks INT
+);
+
+-- Insert data into Student Table
+INSERT INTO Student (StudID, Name, Address, Marks) VALUES
+(1, 'John Doe', '123 Main St', 85),
+(2, 'Jane Smith', '456 Elm St', 92),
+(3, 'Sam Brown', '789 Oak St', 78);
+
+-- Create Employee Table
+CREATE TABLE Employee (
+    EmployeeID INT,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Salary DECIMAL(10, 2),
+    DateOfJoining DATE,
+    Department VARCHAR(50)
+);
+
+-- Insert data into Employee Table
+INSERT INTO Employee (EmployeeID, Name, Address, Salary, DateOfJoining, Department) VALUES
+(101, 'Alice Johnson', '101 Maple Rd', 50000, '2020-01-15', 'IT'),
+(102, 'Bob Williams', '202 Birch Blvd', 55000, '2019-05-20', 'HR'),
+(103, 'Charlie Davis', '303 Cedar Ave', 45000, '2021-08-10', 'Finance');
+
+-- Create Weather Table
+CREATE TABLE Weather (
+    CityID INT,
+    CityName VARCHAR(50),
+    MinTemp DECIMAL(5, 2),
+    MaxTemp DECIMAL(5, 2)
+);
+
+-- Insert data into Weather Table
+INSERT INTO Weather (CityID, CityName, MinTemp, MaxTemp) VALUES
+(1, 'New York', -5.5, 30.0),
+(2, 'Los Angeles', 10.0, 35.5),
+(3, 'Chicago', -10.0, 25.0);
+```
+
+---
+
+### 2. **Alter Tables to Add `NOT NULL` Constraint**
+
+```sql
+-- Alter Student Table
+ALTER TABLE Student MODIFY StudID INT NOT NULL;
+ALTER TABLE Student MODIFY Name VARCHAR(50) NOT NULL;
+ALTER TABLE Student MODIFY Address VARCHAR(100) NOT NULL;
+ALTER TABLE Student MODIFY Marks INT NOT NULL;
+
+-- Alter Employee Table
+ALTER TABLE Employee MODIFY EmployeeID INT NOT NULL;
+ALTER TABLE Employee MODIFY Name VARCHAR(50) NOT NULL;
+ALTER TABLE Employee MODIFY Address VARCHAR(100) NOT NULL;
+ALTER TABLE Employee MODIFY Salary DECIMAL(10, 2) NOT NULL;
+ALTER TABLE Employee MODIFY DateOfJoining DATE NOT NULL;
+ALTER TABLE Employee MODIFY Department VARCHAR(50) NOT NULL;
+```
+
+---
+
+### 3. **Add Primary Key Constraint to Student Table**
+
+```sql
+ALTER TABLE Student ADD PRIMARY KEY (StudID);
+```
+
+---
+
+### 4. **Create Views**
+
+- **JoiningInfo View on Employee Table**
+
+```sql
+CREATE VIEW JoiningInfo AS
+SELECT EmployeeID, Name, DateOfJoining FROM Employee;
+```
+
+- **MarksInfo View on Student Table**
+
+```sql
+CREATE VIEW MarksInfo AS
+SELECT StudID, Marks FROM Student;
+```
+
+---
+
+### 5. **Create Indexes on Primary Key Columns**
+
+```sql
+-- Index on Student Primary Key
+CREATE INDEX idx_studid ON Student (StudID);
+
+-- Index on Employee Primary Key
+CREATE INDEX idx_employeeid ON Employee (EmployeeID);
+
+-- Index on Weather Primary Key
+CREATE INDEX idx_cityid ON Weather (CityID);
+```
+
+---
+
+### 6. **Rename Weather Table to WeatherData**
+
+```sql
+ALTER TABLE Weather RENAME TO WeatherData;
+```
+
+---
+
+### 7. **Drop `CityName` Column from WeatherData Table**
+
+```sql
+ALTER TABLE WeatherData DROP COLUMN CityName;
+```
+
+---
+
+### 8. **Add `Grade` Column to Student Table**
+
+```sql
+ALTER TABLE Student ADD Grade VARCHAR(10);
+```
+
+---
+
+### 9. **Create `DistinctionStudents` View**
+
+```sql
+CREATE VIEW DistinctionStudents AS
+SELECT * FROM Student WHERE Grade = 'Distinction';
+```
+
+---
+
+### 10. **Create Sequence on `StudID` in Student Table**
+
+```sql
+CREATE SEQUENCE student_seq
+START WITH 1
+INCREMENT BY 1;
+```
+
+---
+
+### 11. **Create Synonym `Emp_Info` for Employee Table**
+
+```sql
+CREATE SYNONYM Emp_Info FOR Employee;
+```
+
+---
+
+These SQL statements cover all the tasks specified in your practical assignment. Let me know if you need any clarifications or additional queries!

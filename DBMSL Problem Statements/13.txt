@@ -1,0 +1,146 @@
+### Given the Database Schema:
+
+- **Employee** (`employee-name`, `street`, `city`)
+- **Works** (`employee-name`, `company-name`, `salary`)
+- **Company** (`company-name`, `city`)
+- **Manages** (`employee-name`, `manager-name`)
+
+### SQL Queries for Each Requirement:
+
+---
+
+### 1. **Find the names and cities of residence of all employees who work for First Bank Corporation.**
+
+We need to join the `Employee` and `Works` tables based on the `employee-name` and filter by `company-name = 'First Bank Corporation'`.
+
+```sql
+SELECT e.employee-name, e.city
+FROM employee e
+JOIN works w ON e.employee-name = w.employee-name
+WHERE w.company-name = 'First Bank Corporation';
+```
+
+---
+
+### 2. **Find all employees in the database who live in the same cities as the companies for which they work.**
+
+To find employees who live in the same cities as the companies they work for, we need to join the `Employee`, `Works`, and `Company` tables, and compare the `city` in both the `Employee` and `Company` tables.
+
+```sql
+SELECT e.employee-name
+FROM employee e
+JOIN works w ON e.employee-name = w.employee-name
+JOIN company c ON w.company-name = c.company-name
+WHERE e.city = c.city;
+```
+
+---
+
+### 3. **Find all employees in the database who do not work for First Bank Corporation.**
+
+We need to find all employees who do **not** work for "First Bank Corporation". This can be done using a `NOT EXISTS` or `NOT IN` clause.
+
+```sql
+SELECT e.employee-name
+FROM employee e
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM works w
+    WHERE w.employee-name = e.employee-name
+    AND w.company-name = 'First Bank Corporation'
+);
+```
+
+Alternatively, you can use `NOT IN`:
+
+```sql
+SELECT e.employee-name
+FROM employee e
+WHERE e.employee-name NOT IN (
+    SELECT w.employee-name
+    FROM works w
+    WHERE w.company-name = 'First Bank Corporation'
+);
+```
+
+---
+
+### 4. **Assume that the companies may be located in several cities. Find all companies located in every city in which Small Bank Corporation is located.**
+
+We can achieve this by using a `NOT EXISTS` clause to find companies located in every city where "Small Bank Corporation" has a presence.
+
+```sql
+SELECT c.company-name
+FROM company c
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM company c2
+    WHERE c2.company-name = 'Small Bank Corporation'
+    AND NOT EXISTS (
+        SELECT 1
+        FROM company c3
+        WHERE c3.company-name = c.company-name
+        AND c3.city = c2.city
+    )
+);
+```
+
+This query ensures that the company is located in **every** city where "Small Bank Corporation" is located.
+
+---
+
+### 5. **Find the company that has the most employees.**
+
+To find the company with the most employees, we need to count the number of employees for each company and then select the one with the maximum count.
+
+```sql
+SELECT w.company-name
+FROM works w
+GROUP BY w.company-name
+ORDER BY COUNT(w.employee-name) DESC
+FETCH FIRST 1 ROWS ONLY;
+```
+
+Alternatively, for some SQL engines that don't support `FETCH FIRST`, you can use a subquery:
+
+```sql
+SELECT company-name
+FROM works
+GROUP BY company-name
+HAVING COUNT(employee-name) = (
+    SELECT MAX(emp_count)
+    FROM (
+        SELECT company-name, COUNT(employee-name) AS emp_count
+        FROM works
+        GROUP BY company-name
+    )
+);
+```
+
+---
+
+### 6. **Find those companies whose employees earn a higher salary, on average, than the average salary at First Bank Corporation.**
+
+We need to find companies where the average salary of their employees exceeds the average salary of employees at "First Bank Corporation". This can be done by using a subquery to calculate the average salary for "First Bank Corporation" and comparing it with the average salary for other companies.
+
+```sql
+SELECT w.company-name
+FROM works w
+GROUP BY w.company-name
+HAVING AVG(w.salary) > (
+    SELECT AVG(salary)
+    FROM works
+    WHERE company-name = 'First Bank Corporation'
+);
+```
+
+---
+
+### Summary of Queries:
+
+1. **Employees of First Bank Corporation**: Join `Employee` and `Works` tables and filter by company name.
+2. **Employees living in the same cities as their companies**: Join `Employee`, `Works`, and `Company` tables, and compare cities.
+3. **Employees who do not work for First Bank Corporation**: Use `NOT EXISTS` or `NOT IN` to exclude employees working for the specified company.
+4. **Companies located in every city where Small Bank Corporation is located**: Use `NOT EXISTS` to check for presence in all cities of Small Bank Corporation.
+5. **Company with the most employees**: Group by company and order by count of employees.
+6. **Companies with higher average salaries than First Bank Corporation**: Use a subquery to compare average salaries.

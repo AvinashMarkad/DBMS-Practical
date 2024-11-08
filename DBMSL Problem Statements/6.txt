@@ -1,0 +1,87 @@
+Here is a PL/SQL block using a cursor to update the salaries of employees with a bonus based on the specified conditions:
+
+```sql
+DECLARE
+    -- Declare variables to hold employee data
+    CURSOR emp_cursor IS 
+        SELECT eno, salary FROM Emp;
+    
+    v_eno Emp.eno%TYPE;
+    v_salary Emp.salary%TYPE;
+BEGIN
+    -- Open cursor and loop through each employee
+    OPEN emp_cursor;
+    
+    LOOP
+        FETCH emp_cursor INTO v_eno, v_salary;
+        
+        -- Exit loop when no more records are found
+        EXIT WHEN emp_cursor%NOTFOUND;
+        
+        -- Apply bonus based on salary conditions
+        IF v_salary > 4000 THEN
+            UPDATE Emp
+            SET salary = salary + 5000
+            WHERE eno = v_eno;
+        ELSIF v_salary <= 4000 THEN
+            UPDATE Emp
+            SET salary = salary + 1000
+            WHERE eno = v_eno;
+        END IF;
+    END LOOP;
+    
+    -- Close the cursor
+    CLOSE emp_cursor;
+    
+    -- Commit the changes to the database
+    COMMIT;
+END;
+```
+
+### Explanation:
+- **Cursor Declaration**: `emp_cursor` is declared to select `eno` and `salary` from the `Emp` table.
+- **Looping Through Records**: The cursor is opened, and a loop fetches each employee's `eno` and `salary`.
+- **Condition Check**: 
+  - If the salary is greater than 4000, a bonus of 5000 is added.
+  - If the salary is less than or equal to 4000, a bonus of 1000 is added.
+- **Update and Commit**: The `UPDATE` statement modifies the `salary`, and `COMMIT` ensures changes are saved.
+
+This block will update the employee records with the appropriate bonuses. Let me know if you have any questions or need any adjustments!
+
+
+
+
+
+Here is the PL/SQL block without the comments:
+
+```sql
+DECLARE
+    CURSOR emp_cursor IS 
+        SELECT eno, salary FROM Emp;
+    
+    v_eno Emp.eno%TYPE;
+    v_salary Emp.salary%TYPE;
+BEGIN
+    OPEN emp_cursor;
+    
+    LOOP
+        FETCH emp_cursor INTO v_eno, v_salary;
+        
+        EXIT WHEN emp_cursor%NOTFOUND;
+        
+        IF v_salary > 4000 THEN
+            UPDATE Emp
+            SET salary = salary + 5000
+            WHERE eno = v_eno;
+        ELSIF v_salary <= 4000 THEN
+            UPDATE Emp
+            SET salary = salary + 1000
+            WHERE eno = v_eno;
+        END IF;
+    END LOOP;
+    
+    CLOSE emp_cursor;
+    
+    COMMIT;
+END;
+```

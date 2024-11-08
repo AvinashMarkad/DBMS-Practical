@@ -1,0 +1,66 @@
+Here is a PL/SQL trigger that will track the inserted records in the `WorkCenters` table and update the `WorkCenterStats` table by adding the total capacity based on the newly inserted records:
+
+```sql
+CREATE OR REPLACE TRIGGER trg_update_workcenter_stats
+AFTER INSERT ON WorkCenters
+FOR EACH ROW
+DECLARE
+    v_total_capacity NUMBER;
+BEGIN
+    -- Retrieve the current total capacity from WorkCenterStats
+    SELECT NVL(total_capacity, 0) 
+    INTO v_total_capacity
+    FROM WorkCenterStats
+    WHERE workcenter_id = :NEW.workcenter_id;
+    
+    -- Update the total capacity in WorkCenterStats
+    UPDATE WorkCenterStats
+    SET total_capacity = v_total_capacity + :NEW.capacity
+    WHERE workcenter_id = :NEW.workcenter_id;
+
+    -- If no record exists for the specific workcenter_id, insert a new record
+    IF SQL%ROWCOUNT = 0 THEN
+        INSERT INTO WorkCenterStats (workcenter_id, total_capacity)
+        VALUES (:NEW.workcenter_id, :NEW.capacity);
+    END IF;
+END;
+```
+
+### Explanation:
+- **Trigger Event**: The trigger is fired **AFTER INSERT** on the `WorkCenters` table.
+- **Variables**:
+  - `v_total_capacity`: Stores the current total capacity for the specific `workcenter_id` from the `WorkCenterStats` table.
+- **Trigger Logic**:
+  - The trigger checks if a record for the same `workcenter_id` exists in the `WorkCenterStats` table.
+  - If the record exists, the total capacity is updated by adding the newly inserted capacity from the `WorkCenters` table.
+  - If no record exists, a new record is inserted into the `WorkCenterStats` table with the new `capacity`.
+  
+This will ensure that each time a new record is inserted into the `WorkCenters` table, the `WorkCenterStats` table reflects the updated total capacity.
+
+
+
+
+Here is the trigger with the comments removed:
+
+```sql
+CREATE OR REPLACE TRIGGER trg_update_workcenter_stats
+AFTER INSERT ON WorkCenters
+FOR EACH ROW
+DECLARE
+    v_total_capacity NUMBER;
+BEGIN
+    SELECT NVL(total_capacity, 0) 
+    INTO v_total_capacity
+    FROM WorkCenterStats
+    WHERE workcenter_id = :NEW.workcenter_id;
+    
+    UPDATE WorkCenterStats
+    SET total_capacity = v_total_capacity + :NEW.capacity
+    WHERE workcenter_id = :NEW.workcenter_id;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        INSERT INTO WorkCenterStats (workcenter_id, total_capacity)
+        VALUES (:NEW.workcenter_id, :NEW.capacity);
+    END IF;
+END;
+```

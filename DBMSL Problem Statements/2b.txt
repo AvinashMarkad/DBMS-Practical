@@ -1,0 +1,107 @@
+Here's how to create the `Employee` table with the specified schema, insert records, and execute the required queries:
+
+---
+
+### 1. **Create the Employee Table**
+
+```sql
+CREATE TABLE Employee (
+    Employee_id INT PRIMARY KEY,
+    First_name VARCHAR(50) NOT NULL,
+    Last_name VARCHAR(50) NOT NULL,
+    Salary DECIMAL(10, 2) NOT NULL,
+    Joining_date DATE NOT NULL,
+    Department VARCHAR(50) NOT NULL
+);
+```
+
+### 2. **Insert 10 to 15 Records into the Employee Table**
+
+```sql
+-- Inserting sample data
+INSERT INTO Employee VALUES (1, 'John', 'Doe', 18000, '2018-06-15', 'IT');
+INSERT INTO Employee VALUES (2, 'Alice', 'Smith', 22000, '2017-03-10', 'HR');
+INSERT INTO Employee VALUES (3, 'Bob', 'Johnson', 25000, '2016-11-22', 'Finance');
+INSERT INTO Employee VALUES (4, 'Charlie', 'Brown', 19000, '2019-05-05', 'IT');
+INSERT INTO Employee VALUES (5, 'David', 'White', 30000, '2015-08-09', 'Marketing');
+INSERT INTO Employee VALUES (6, 'Eve', 'Black', 17000, '2020-01-12', 'Finance');
+INSERT INTO Employee VALUES (7, 'Frank', 'Green', 40000, '2014-07-21', 'IT');
+INSERT INTO Employee VALUES (8, 'Grace', 'Miller', 28000, '2018-04-17', 'HR');
+INSERT INTO Employee VALUES (9, 'Hannah', 'Wilson', 31000, '2013-12-01', 'Marketing');
+INSERT INTO Employee VALUES (10, 'Ivy', 'Clark', 15000, '2021-09-14', 'Operations');
+INSERT INTO Employee VALUES (11, 'Adam', 'Lee', 18000, '2018-10-23', 'Sales');
+INSERT INTO Employee VALUES (12, 'Arthur', 'Young', 20000, '2019-02-18', 'Sales');
+INSERT INTO Employee VALUES (13, 'Amanda', 'Scott', 26000, '2017-06-30', 'Finance');
+INSERT INTO Employee VALUES (14, 'Albert', 'Hall', 32000, '2012-11-07', 'HR');
+```
+
+### 3. **Get First_Name and Last_Name from the Employee Table**
+
+```sql
+SELECT First_name, Last_name FROM Employee;
+```
+
+### 4. **Get Unique Departments from the Employee Table**
+
+```sql
+SELECT DISTINCT Department FROM Employee;
+```
+
+### 5. **Get First_Name, Joining Year, Joining Month, and Joining Date**
+
+```sql
+SELECT First_name, 
+       YEAR(Joining_date) AS Joining_Year, 
+       MONTH(Joining_date) AS Joining_Month, 
+       DAY(Joining_date) AS Joining_Day 
+FROM Employee;
+```
+
+### 6. **Get All Employee Details Ordered by Salary in Ascending Order**
+
+```sql
+SELECT * FROM Employee ORDER BY Salary ASC;
+```
+
+### 7. **Get All Employee Details Where First_Name Starts with 'A'**
+
+```sql
+SELECT * FROM Employee WHERE First_name LIKE 'A%';
+```
+
+### 8. **Update the Salary for Employees Earning Less than 20,000**
+
+```sql
+UPDATE Employee 
+SET Salary = Salary + 5000 
+WHERE Salary < 20000;
+```
+
+### 9. **Delete the Department of Employee with ID 4**
+
+```sql
+UPDATE Employee 
+SET Department = NULL 
+WHERE Employee_id = 4;
+```
+
+### 10. **Find Department-wise Minimum Salary**
+
+```sql
+SELECT Department, MIN(Salary) AS Min_Salary 
+FROM Employee 
+GROUP BY Department;
+```
+
+### 11. **Find Department-wise Average Salary in Ascending Order**
+
+```sql
+SELECT Department, AVG(Salary) AS Avg_Salary 
+FROM Employee 
+GROUP BY Department 
+ORDER BY Avg_Salary ASC;
+```
+
+---
+
+These queries should achieve the required tasks step-by-step. Let me know if you need any further modifications or additional queries!

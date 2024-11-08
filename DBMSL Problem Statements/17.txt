@@ -1,0 +1,175 @@
+### MongoDB Operations to Create the `books` Collection, Aggregation, and Indexing Queries
+
+#### 1. **Create the `books` collection with the required fields**:
+
+MongoDB creates a collection automatically when documents are inserted, but here's how you can define the collection manually and insert sample data.
+
+```javascript
+db.createCollection("books");
+```
+
+Now, insert some sample books into the `books` collection:
+
+```javascript
+db.books.insertMany([
+  {
+    TITLE: "MongoDB Basics",
+    DESCRIPTION: "Introduction to MongoDB.",
+    AUTHOR: "john",
+    URL: "http://mongodb.com",
+    TAGS: ["NoSQL", "Database", "MongoDB"],
+    LIKES: 120
+  },
+  {
+    TITLE: "Advanced MongoDB",
+    DESCRIPTION: "Advanced MongoDB techniques.",
+    AUTHOR: "john",
+    URL: "http://advanced-mongo.com",
+    TAGS: ["MongoDB", "NoSQL"],
+    LIKES: 250
+  },
+  {
+    TITLE: "MongoDB and Node.js",
+    DESCRIPTION: "Using MongoDB with Node.js.",
+    AUTHOR: "alice",
+    URL: "http://mongodb-nodejs.com",
+    TAGS: ["Node.js", "MongoDB"],
+    LIKES: 150
+  },
+  {
+    TITLE: "Understanding MongoDB",
+    DESCRIPTION: "Deep dive into MongoDB.",
+    AUTHOR: "john",
+    URL: "http://understand-mongo.com",
+    TAGS: ["MongoDB", "Database"],
+    LIKES: 100
+  },
+  {
+    TITLE: "MongoDB Aggregation",
+    DESCRIPTION: "Aggregation in MongoDB.",
+    AUTHOR: "john",
+    URL: "http://aggregation-mongo.com",
+    TAGS: ["Aggregation", "MongoDB"],
+    LIKES: 180
+  }
+]);
+```
+
+---
+
+#### 2. **Aggregation Queries:**
+
+---
+
+### **1. Find the number of books published by author "john":**
+
+Use the `aggregate()` function with `$match` and `$count` to find the number of books by the author "john".
+
+```javascript
+db.books.aggregate([
+  { $match: { AUTHOR: "john" } },
+  { $count: "total_books" }
+]);
+```
+
+This will return the number of books written by "john".
+
+---
+
+### **2. Find books with minimum and maximum likes published by author "john":**
+
+You can use the `$match`, `$group`, and `$sort` operators to find the book with minimum and maximum likes.
+
+```javascript
+// Find minimum likes for books written by "john"
+db.books.aggregate([
+  { $match: { AUTHOR: "john" } },
+  { $sort: { LIKES: 1 } },
+  { $limit: 1 }
+]);
+
+// Find maximum likes for books written by "john"
+db.books.aggregate([
+  { $match: { AUTHOR: "john" } },
+  { $sort: { LIKES: -1 } },
+  { $limit: 1 }
+]);
+```
+
+The first query will return the book with the minimum likes, and the second query will return the book with the maximum likes.
+
+---
+
+### **3. Find the average number of likes of the books published by author "john":**
+
+Use the `$match` and `$group` operators to calculate the average.
+
+```javascript
+db.books.aggregate([
+  { $match: { AUTHOR: "john" } },
+  { $group: { _id: null, average_likes: { $avg: "$LIKES" } } }
+]);
+```
+
+This query will return the average number of likes for books written by "john".
+
+---
+
+### **4. Find the first and last book published by author "john":**
+
+To get the first and last books, you can sort the books and then limit the results.
+
+```javascript
+// First book published by "john"
+db.books.aggregate([
+  { $match: { AUTHOR: "john" } },
+  { $sort: { TITLE: 1 } },  // Sorting alphabetically by title
+  { $limit: 1 }
+]);
+
+// Last book published by "john"
+db.books.aggregate([
+  { $match: { AUTHOR: "john" } },
+  { $sort: { TITLE: -1 } },  // Sorting alphabetically in reverse order
+  { $limit: 1 }
+]);
+```
+
+These queries will return the first and last book published by "john" based on the sorted order of titles.
+
+---
+
+#### 3. **Create an Index on `AUTHOR` field:**
+
+Creating an index on the `AUTHOR` field will help optimize queries filtering by author.
+
+```javascript
+db.books.createIndex({ AUTHOR: 1 });
+```
+
+This creates an ascending index on the `AUTHOR` field.
+
+---
+
+#### 4. **Display books published by 'john' and check if the index is used:**
+
+You can display the books published by "john" and check if the index is being used by running the `explain()` method on the query.
+
+```javascript
+db.books.find({ AUTHOR: "john" }).explain("executionStats");
+```
+
+The `explain("executionStats")` will return detailed information about how MongoDB executed the query. If the index on `AUTHOR` is used, you will see `IXSCAN` (Index Scan) in the explanation output.
+
+---
+
+### Summary of MongoDB Commands:
+
+1. **Find the number of books by "john"**: `aggregate()` with `$match` and `$count`.
+2. **Find books with minimum and maximum likes by "john"**: `aggregate()` with `$sort` and `$limit`.
+3. **Find average likes for books by "john"**: `aggregate()` with `$match` and `$group`.
+4. **Find the first and last books by "john"**: `aggregate()` with `$sort` and `$limit`.
+5. **Create index on `AUTHOR`**: `createIndex({ AUTHOR: 1 })`.
+6. **Check if index is used**: `find().explain("executionStats")`.
+
+These aggregation and indexing queries should give you the necessary results for your requirements!

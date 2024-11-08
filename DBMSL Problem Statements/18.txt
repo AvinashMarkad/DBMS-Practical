@@ -1,0 +1,189 @@
+### MongoDB MapReduce Implementation Based on the Given Schema
+
+We will create a MongoDB collection to store the `Order` records, and then implement the MapReduce functions for the following tasks:
+
+1. **Find the sum of the amount for each customer whose status is "P" (Pending).**
+2. **Find the average amount for each customer.**
+3. **Find the minimum amount for each customer.**
+4. **Find the maximum amount for each customer whose status is "F" (Failed).**
+
+---
+
+### 1. **Create the `orders` Collection and Insert Records:**
+
+You can create a MongoDB collection and insert the sample records as follows:
+
+```javascript
+db.orders.insertMany([
+  { id: "A1", amount: 400, status: "P" },
+  { id: "B1", amount: 300, status: "D" },
+  { id: "A1", amount: 200, status: "F" },
+  { id: "C1", amount: 200, status: "F" },
+  { id: "B1", amount: 700, status: "P" },
+  { id: "B1", amount: 800, status: "P" }
+]);
+```
+
+This will create the `orders` collection with the following records:
+
+| id  | amount | status |
+|-----|--------|--------|
+| A1  | 400    | P      |
+| B1  | 300    | D      |
+| A1  | 200    | F      |
+| C1  | 200    | F      |
+| B1  | 700    | P      |
+| B1  | 800    | P      |
+
+---
+
+### 2. **MapReduce for the Queries**
+
+#### **1. Find the sum of the amount for each customer whose status is "P" (Pending)**
+
+For this query, we will sum the `amount` for each `id` where the `status` is `"P"`.
+
+**Map Function:**
+The map function will filter out documents with status `"P"` and emit the customer `id` as the key and the `amount` as the value.
+
+**Reduce Function:**
+The reduce function will sum the amounts for each customer.
+
+```javascript
+var mapSum = function() {
+  if (this.status === "P") {
+    emit(this.id, this.amount);
+  }
+};
+
+var reduceSum = function(key, values) {
+  return Array.sum(values);
+};
+
+db.orders.mapReduce(mapSum, reduceSum, { out: "sum_of_pending_amounts" });
+```
+
+This will output the total sum of amounts for each customer whose status is "P". The result will be stored in the `sum_of_pending_amounts` collection.
+
+---
+
+#### **2. Find the average amount for each customer**
+
+To calculate the average amount for each customer, we will use the following approach:
+
+**Map Function:**
+The map function will emit the customer `id` and the `amount` value.
+
+**Reduce Function:**
+The reduce function will calculate the sum of amounts and the count of documents for each customer, and then compute the average.
+
+```javascript
+var mapAvg = function() {
+  emit(this.id, { totalAmount: this.amount, count: 1 });
+};
+
+var reduceAvg = function(key, values) {
+  var result = { totalAmount: 0, count: 0 };
+  values.forEach(function(value) {
+    result.totalAmount += value.totalAmount;
+    result.count += value.count;
+  });
+  return result;
+};
+
+var finalizeAvg = function(key, reducedValue) {
+  reducedValue.averageAmount = reducedValue.totalAmount / reducedValue.count;
+  return reducedValue;
+};
+
+db.orders.mapReduce(mapAvg, reduceAvg, {
+  out: "average_amounts",
+  finalize: finalizeAvg
+});
+```
+
+This will calculate the average amount for each customer and store the result in the `average_amounts` collection.
+
+---
+
+#### **3. Find the minimum amount for each customer**
+
+To find the minimum amount for each customer:
+
+**Map Function:**
+The map function will emit the customer `id` and the `amount` value.
+
+**Reduce Function:**
+The reduce function will compute the minimum value for each customer.
+
+```javascript
+var mapMin = function() {
+  emit(this.id, this.amount);
+};
+
+var reduceMin = function(key, values) {
+  return Math.min.apply(Math, values);
+};
+
+db.orders.mapReduce(mapMin, reduceMin, { out: "min_amounts" });
+```
+
+This will find the minimum amount for each customer and store the result in the `min_amounts` collection.
+
+---
+
+#### **4. Find the maximum amount for each customer whose status is "F" (Failed)**
+
+To find the maximum amount for each customer with a status of "F":
+
+**Map Function:**
+The map function will emit the customer `id` and the `amount` value only if the status is `"F"`.
+
+**Reduce Function:**
+The reduce function will compute the maximum value for each customer.
+
+```javascript
+var mapMax = function() {
+  if (this.status === "F") {
+    emit(this.id, this.amount);
+  }
+};
+
+var reduceMax = function(key, values) {
+  return Math.max.apply(Math, values);
+};
+
+db.orders.mapReduce(mapMax, reduceMax, { out: "max_failed_amounts" });
+```
+
+This will find the maximum amount for each customer whose status is "F" and store the result in the `max_failed_amounts` collection.
+
+---
+
+### 3. **Checking the Results**
+
+After running the MapReduce queries, you can view the results in the respective output collections:
+
+- **Sum of Pending Amounts**: `sum_of_pending_amounts`
+- **Average Amounts**: `average_amounts`
+- **Minimum Amounts**: `min_amounts`
+- **Maximum Amounts (Failed)**: `max_failed_amounts`
+
+To display the results, you can use:
+
+```javascript
+db.sum_of_pending_amounts.find();  // For sum of amounts with status "P"
+db.average_amounts.find();  // For average amounts
+db.min_amounts.find();  // For minimum amounts
+db.max_failed_amounts.find();  // For maximum amounts with status "F"
+```
+
+---
+
+### Summary of MapReduce Functions:
+1. **Find sum of amounts for status "P"**: Use `Array.sum(values)` to sum the amounts.
+2. **Find average amount for each customer**: Use a `finalize` function to calculate the average.
+3. **Find minimum amount for each customer**: Use `Math.min(values)` in the reduce function.
+4. **Find maximum amount for each customer with status "F"**: Use `Math.max(values)` in the reduce function.
+
+These MapReduce functions will efficiently compute the required results for the customer orders.

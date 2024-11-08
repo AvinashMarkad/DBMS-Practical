@@ -1,0 +1,75 @@
+Here are the SQL queries to address each of the requirements for the given schema:
+
+### Schema:
+- **Student** (`Student_Id`, `Student_Name`, `Instructor_Id`, `Student_City`)
+- **Instructor** (`Instructor_Id`, `Instructor_Name`, `Instructor_City`, `Specialization`)
+
+### 1. **Find the instructor of each student.**
+To find the instructor assigned to each student, you can use a `JOIN` between the `Student` and `Instructor` tables based on `Instructor_Id`.
+
+```sql
+SELECT s.Student_Id, s.Student_Name, i.Instructor_Name
+FROM Student s
+JOIN Instructor i ON s.Instructor_Id = i.Instructor_Id;
+```
+
+### 2. **Find the student who is not having any instructor.**
+To find students who don't have any assigned instructor, we need to check for `NULL` in the `Instructor_Id` field of the `Student` table.
+
+```sql
+SELECT Student_Id, Student_Name
+FROM Student
+WHERE Instructor_Id IS NULL;
+```
+
+### 3. **Find the student who is not having any instructor as well as the instructor who is not having any student.**
+This requires two parts:
+- Finding students without an instructor.
+- Finding instructors who are not assigned to any student.
+
+```sql
+-- Students without an instructor
+SELECT Student_Id, Student_Name
+FROM Student
+WHERE Instructor_Id IS NULL;
+
+-- Instructors without any students
+SELECT i.Instructor_Id, i.Instructor_Name
+FROM Instructor i
+LEFT JOIN Student s ON i.Instructor_Id = s.Instructor_Id
+WHERE s.Student_Id IS NULL;
+```
+
+### 4. **Find the students whose instructor’s specialization is computer.**
+To find students whose instructor's specialization is "computer," you can join the `Student` and `Instructor` tables and filter by the `Specialization` column in the `Instructor` table.
+
+```sql
+SELECT s.Student_Id, s.Student_Name
+FROM Student s
+JOIN Instructor i ON s.Instructor_Id = i.Instructor_Id
+WHERE i.Specialization = 'Computer';
+```
+
+### 5. **Create a view containing the total number of students whose instructor belongs to "Pune".**
+You can create a view that counts the number of students whose instructor is located in "Pune."
+
+```sql
+CREATE VIEW students_in_pune AS
+SELECT COUNT(s.Student_Id) AS Total_Students
+FROM Student s
+JOIN Instructor i ON s.Instructor_Id = i.Instructor_Id
+WHERE i.Instructor_City = 'Pune';
+```
+
+After creating this view, you can query it to get the total number of students.
+
+```sql
+SELECT * FROM students_in_pune;
+```
+
+### Summary of Queries:
+1. **Instructor of each student**: Join `Student` and `Instructor` tables.
+2. **Student without any instructor**: Filter by `NULL` in `Instructor_Id`.
+3. **Students without instructor and instructors without students**: Two separate queries using `LEFT JOIN`.
+4. **Students whose instructor specializes in computer**: Join `Student` and `Instructor` with specialization filter.
+5. **View for total students with instructors from Pune**: Create a view that counts the students where the instructor's city is "Pune".

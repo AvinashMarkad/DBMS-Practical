@@ -1,0 +1,128 @@
+Here is the stored procedure `proc_Grade` that categorizes students based on their marks and inserts the results into the `Result` table:
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE proc_Grade()
+BEGIN
+    DECLARE v_Roll INT;
+    DECLARE v_Name VARCHAR(100);
+    DECLARE v_TotalMarks INT;
+    DECLARE v_Class VARCHAR(20);
+    
+    -- Cursor to iterate through each student in Stud_Marks
+    DECLARE student_cursor CURSOR FOR 
+    SELECT Roll, name, total_marks FROM Stud_Marks;
+    
+    -- Declare exit handler for the cursor
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_Roll = NULL;
+    
+    OPEN student_cursor;
+    
+    -- Loop through each student record
+    student_loop: LOOP
+        FETCH student_cursor INTO v_Roll, v_Name, v_TotalMarks;
+        
+        -- Exit loop if there are no more records
+        IF v_Roll IS NULL THEN 
+            LEAVE student_loop;
+        END IF;
+        
+        -- Categorize based on total_marks
+        IF v_TotalMarks <= 1500 AND v_TotalMarks >= 990 THEN
+            SET v_Class = 'Distinction';
+        ELSIF v_TotalMarks <= 989 AND v_TotalMarks >= 900 THEN
+            SET v_Class = 'First Class';
+        ELSIF v_TotalMarks <= 899 AND v_TotalMarks >= 825 THEN
+            SET v_Class = 'Higher Second Class';
+        ELSE
+            SET v_Class = 'No Category'; -- If marks fall outside defined ranges
+        END IF;
+        
+        -- Insert into Result table
+        INSERT INTO Result (Roll, Name, Class)
+        VALUES (v_Roll, v_Name, v_Class);
+    END LOOP;
+    
+    CLOSE student_cursor;
+END;
+//
+
+DELIMITER ;
+```
+
+### Explanation
+- **Cursor Declaration**: The procedure uses a cursor `student_cursor` to iterate over the `Stud_Marks` table.
+- **Loop Through Students**: The loop fetches each student's `Roll`, `name`, and `total_marks` from the `Stud_Marks` table.
+- **Classification Logic**: Based on the `total_marks`, the procedure assigns a `Class` to the student:
+  - `Distinction` for marks between 990 and 1500 (inclusive).
+  - `First Class` for marks between 900 and 989.
+  - `Higher Second Class` for marks between 825 and 899.
+- **Insert into `Result` Table**: The procedure inserts the `Roll`, `Name`, and categorized `Class` into the `Result` table.
+
+### Notes
+- **Error Handling**: Basic error handling using `CONTINUE HANDLER FOR NOT FOUND` to manage the end of the cursor iteration.
+- **Adjustments**: If needed, you can modify the `No Category` label to handle marks that fall outside the defined ranges.
+
+Let me know if you need any further assistance or modifications!
+
+
+
+
+
+
+
+
+
+
+
+
+
+Here is the simplified stored procedure `proc_Grade` without comments:
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE proc_Grade()
+BEGIN
+    DECLARE v_Roll INT;
+    DECLARE v_Name VARCHAR(100);
+    DECLARE v_TotalMarks INT;
+    DECLARE v_Class VARCHAR(20);
+
+    DECLARE student_cursor CURSOR FOR 
+    SELECT Roll, name, total_marks FROM Stud_Marks;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET v_Roll = NULL;
+
+    OPEN student_cursor;
+
+    student_loop: LOOP
+        FETCH student_cursor INTO v_Roll, v_Name, v_TotalMarks;
+
+        IF v_Roll IS NULL THEN 
+            LEAVE student_loop;
+        END IF;
+
+        IF v_TotalMarks <= 1500 AND v_TotalMarks >= 990 THEN
+            SET v_Class = 'Distinction';
+        ELSIF v_TotalMarks <= 989 AND v_TotalMarks >= 900 THEN
+            SET v_Class = 'First Class';
+        ELSIF v_TotalMarks <= 899 AND v_TotalMarks >= 825 THEN
+            SET v_Class = 'Higher Second Class';
+        ELSE
+            SET v_Class = 'No Category';
+        END IF;
+
+        INSERT INTO Result (Roll, Name, Class)
+        VALUES (v_Roll, v_Name, v_Class);
+    END LOOP;
+
+    CLOSE student_cursor;
+END;
+//
+
+DELIMITER ;
+```
+
+Let me know if you need any further assistance or modifications!

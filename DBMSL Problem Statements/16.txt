@@ -1,0 +1,144 @@
+### MongoDB Operations Based on the Given Requirements:
+
+1. **Create a collection named `books`**:
+   MongoDB will automatically create the collection when the first document is inserted, but if you want to explicitly create the collection:
+
+   ```javascript
+   db.createCollection("books");
+   ```
+
+2. **Insert 5 records with fields `TITLE`, `DESCRIPTION`, `BY`, `URL`, `TAGS`, and `LIKES`**:
+   Insert multiple documents using `insertMany`.
+
+   ```javascript
+   db.books.insertMany([
+     {
+       TITLE: "MongoDB Basics",
+       DESCRIPTION: "Introduction to MongoDB.",
+       BY: "john",
+       URL: "http://mongodb.com",
+       TAGS: ["NoSQL", "MongoDB"],
+       LIKES: 120
+     },
+     {
+       TITLE: "MongoDB Advanced",
+       DESCRIPTION: "Advanced MongoDB techniques.",
+       BY: "alice",
+       URL: "http://advanced-mongo.com",
+       TAGS: ["MongoDB", "NoSQL"],
+       LIKES: 250
+     },
+     {
+       TITLE: "NoSQL Overview",
+       DESCRIPTION: "An overview of NoSQL databases.",
+       BY: "bob",
+       URL: "http://nosql.com",
+       TAGS: ["NoSQL", "Database"],
+       LIKES: 90
+     },
+     {
+       TITLE: "MongoDB and Node.js",
+       DESCRIPTION: "Using MongoDB with Node.js.",
+       BY: "john",
+       URL: "http://mongodb-nodejs.com",
+       TAGS: ["MongoDB", "Node.js"],
+       LIKES: 150
+     },
+     {
+       TITLE: "MongoDB Aggregation",
+       DESCRIPTION: "Deep dive into MongoDB aggregation.",
+       BY: "charlie",
+       URL: "http://mongodb-aggregation.com",
+       TAGS: ["MongoDB", "Aggregation"],
+       LIKES: 180
+     }
+   ]);
+   ```
+
+3. **Insert 1 more document in the collection with additional fields `user_name` and `comments`**:
+
+   Insert a new document with the fields `user_name` and `comments`.
+
+   ```javascript
+   db.books.insertOne({
+     TITLE: "TOC Book",
+     DESCRIPTION: "Table of contents for MongoDB.",
+     BY: "jane",
+     URL: "http://toc-mongo.com",
+     TAGS: ["MongoDB", "Documentation"],
+     LIKES: 75,
+     user_name: "alex_smith",
+     comments: "Great resource!"
+   });
+   ```
+
+4. **Display all the documents whose title is 'mongodb'**:
+
+   Use the `find()` method with a condition on the `TITLE` field.
+
+   ```javascript
+   db.books.find({ TITLE: "mongodb" });
+   ```
+
+5. **Display all the documents whose title is 'mongodb' and written by 'john'**:
+
+   Use the `find()` method with conditions on both `TITLE` and `BY` fields.
+
+   ```javascript
+   db.books.find({ TITLE: "mongodb", BY: "john" });
+   ```
+
+6. **Display all the documents whose likes are greater than 100 and whose title is either 'mongodb' or written by 'john'**:
+
+   Use the `find()` method with conditions for `LIKES`, `TITLE`, and `BY`, combined using `$or`.
+
+   ```javascript
+   db.books.find({
+     LIKES: { $gt: 100 },
+     $or: [
+       { TITLE: "mongodb" },
+       { BY: "john" }
+     ]
+   });
+   ```
+
+7. **Delete the document titled 'nosql overview'**:
+
+   Use the `deleteOne()` method to delete the document by its title.
+
+   ```javascript
+   db.books.deleteOne({ TITLE: "NoSQL Overview" });
+   ```
+
+8. **Display the second document published by 'john'**:
+
+   Use the `find()` method with a filter for `BY: "john"` and use `skip(1)` to skip the first document and `limit(1)` to get the second one.
+
+   ```javascript
+   db.books.find({ BY: "john" }).skip(1).limit(1);
+   ```
+
+9. **Update the Author of the "TOC Book" to "Vivek Kulkarni", if the record does not exist, create a new document**:
+
+   Use the `updateOne()` method with the `upsert` option set to `true`. This ensures that if the document doesn't exist, it will be created.
+
+   ```javascript
+   db.books.updateOne(
+     { TITLE: "TOC Book" },
+     { $set: { BY: "Vivek Kulkarni" } },
+     { upsert: true }
+   );
+   ```
+
+---
+
+### Summary of MongoDB Commands:
+
+1. **Create Collection**: `db.createCollection("books");`
+2. **Insert Documents**: `insertMany()` for multiple documents and `insertOne()` for a single document with additional fields.
+3. **Find Documents**: `find()` with appropriate conditions to filter by `TITLE`, `BY`, `LIKES`, etc.
+4. **Delete Document**: `deleteOne()` for deleting a specific document.
+5. **Skip and Limit**: `skip()` and `limit()` to control the number of results.
+6. **Update with Upsert**: `updateOne()` with `{ upsert: true }` to update or insert a document.
+
+Let me know if you need any more details or clarifications!

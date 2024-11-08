@@ -1,0 +1,90 @@
+### Given the Schema:
+
+- **Employee** (`employee_id`, `employee_name`, `City`, `Company_Name`, `Salary`)
+
+---
+
+### 11. **Find details of all employees who work for company “IBM” and live in city “Pune”.**
+
+To retrieve employees working for "IBM" and residing in "Pune", you need to filter based on both `Company_Name` and `City`.
+
+```sql
+SELECT *
+FROM Employee
+WHERE Company_Name = 'IBM' 
+  AND City = 'Pune';
+```
+
+---
+
+### 12. **Find names, and cities of all employees who work for “Infosys” or earn more than 30,000.**
+
+Here, you want to retrieve employees who either work for "Infosys" or have a salary greater than 30,000. This can be achieved using the `OR` condition.
+
+```sql
+SELECT employee_name, City
+FROM Employee
+WHERE Company_Name = 'Infosys' 
+   OR Salary > 30000;
+```
+
+---
+
+### 13. **Find all employees who are employees of “IBM” and not living in city “Mumbai”.**
+
+For this, you need to find employees who work for "IBM" and exclude those living in "Mumbai". Use `AND` to specify both conditions.
+
+```sql
+SELECT *
+FROM Employee
+WHERE Company_Name = 'IBM'
+  AND City != 'Mumbai';
+```
+
+Alternatively, you can use `NOT`:
+
+```sql
+SELECT *
+FROM Employee
+WHERE Company_Name = 'IBM'
+  AND NOT City = 'Mumbai';
+```
+
+---
+
+### 14. **Find company-wise maximum salary.**
+
+To find the maximum salary for each company, you can group by `Company_Name` and use the `MAX` function.
+
+```sql
+SELECT Company_Name, MAX(Salary) AS Max_Salary
+FROM Employee
+GROUP BY Company_Name;
+```
+
+---
+
+### 15. **Find those companies whose employees earn higher salary than the average salary at “IBM”.**
+
+First, you need to find the average salary at "IBM", and then retrieve companies where the average salary of their employees exceeds that value. This requires a subquery.
+
+```sql
+SELECT DISTINCT Company_Name
+FROM Employee
+GROUP BY Company_Name
+HAVING AVG(Salary) > (
+    SELECT AVG(Salary)
+    FROM Employee
+    WHERE Company_Name = 'IBM'
+);
+```
+
+---
+
+### Summary of SQL Queries:
+
+1. **Employees at "IBM" in "Pune"**: Simple `SELECT` with filters for `Company_Name` and `City`.
+2. **Employees working for "Infosys" or earning more than 30,000**: Use `OR` to include both conditions.
+3. **Employees of "IBM" not in "Mumbai"**: Use `AND` to filter by company and city.
+4. **Company-wise maximum salary**: Use `GROUP BY` with `MAX` to find the highest salary for each company.
+5. **Companies with higher salaries than the average salary at "IBM"**: Use a subquery to calculate the average salary at "IBM" and compare it with other companies' average salaries.

@@ -1,0 +1,134 @@
+### MongoDB Operations Based on the Given Requirements:
+
+1. **Create a collection named `books`**:
+
+In MongoDB, collections are automatically created when documents are inserted. However, if you want to explicitly create a collection, you can use the `createCollection` method.
+
+```javascript
+db.createCollection("books");
+```
+
+2. **Insert 5 records with fields `TITLE`, `DESCRIPTION`, `BY`, `URL`, `TAGS`, and `LIKES`**:
+
+You can use the `insertMany` method to insert multiple documents.
+
+```javascript
+db.books.insertMany([
+  {
+    TITLE: "MongoDB Basics",
+    DESCRIPTION: "An introduction to MongoDB.",
+    BY: "john",
+    URL: "http://mongodb.com",
+    TAGS: ["NoSQL", "Database", "MongoDB"],
+    LIKES: 100
+  },
+  {
+    TITLE: "Advanced MongoDB",
+    DESCRIPTION: "Learn advanced concepts of MongoDB.",
+    BY: "alice",
+    URL: "http://advanced-mongo.com",
+    TAGS: ["NoSQL", "MongoDB", "Database"],
+    LIKES: 200
+  },
+  {
+    TITLE: "MongoDB and Node.js",
+    DESCRIPTION: "Using MongoDB with Node.js.",
+    BY: "bob",
+    URL: "http://mongodb-nodejs.com",
+    TAGS: ["Node.js", "MongoDB"],
+    LIKES: 150
+  },
+  {
+    TITLE: "Understanding Aggregation in MongoDB",
+    DESCRIPTION: "Deep dive into MongoDB aggregation.",
+    BY: "john",
+    URL: "http://aggregation-mongo.com",
+    TAGS: ["Aggregation", "MongoDB"],
+    LIKES: 120
+  },
+  {
+    TITLE: "MongoDB Indexing",
+    DESCRIPTION: "Understanding MongoDB indexing techniques.",
+    BY: "charlie",
+    URL: "http://mongodb-indexing.com",
+    TAGS: ["Indexing", "MongoDB", "Database"],
+    LIKES: 180
+  }
+]);
+```
+
+3. **Insert 1 more document in the collection with additional fields `user name` and `comments`**:
+
+We will insert a new document with additional fields `user name` and `comments`.
+
+```javascript
+db.books.insertOne({
+  TITLE: "MongoDB CRUD Operations",
+  DESCRIPTION: "Learn the basic CRUD operations in MongoDB.",
+  BY: "john",
+  URL: "http://crud-mongo.com",
+  TAGS: ["CRUD", "MongoDB"],
+  LIKES: 250,
+  USER_NAME: "jane_doe",
+  COMMENTS: "This article is very helpful!"
+});
+```
+
+4. **Display all the documents written by 'john' or whose title is 'mongodb'**:
+
+Use the `find` method with the `$or` operator to match either the `BY` field as "john" or the `TITLE` field as "mongodb".
+
+```javascript
+db.books.find({
+  $or: [
+    { BY: "john" },
+    { TITLE: "mongodb" }
+  ]
+});
+```
+
+5. **Display all the documents whose likes are greater than 150**:
+
+Use the `find` method with a condition on the `LIKES` field.
+
+```javascript
+db.books.find({
+  LIKES: { $gt: 150 }
+});
+```
+
+6. **Update the title of the 'mongodb' document to 'mongodb overview'**:
+
+Use the `updateOne` method to update the document where the `TITLE` is "mongodb".
+
+```javascript
+db.books.updateOne(
+  { TITLE: "mongodb" },
+  { $set: { TITLE: "mongodb overview" } }
+);
+```
+
+7. **Display exactly two documents written by 'john'**:
+
+Use the `find` method with a limit of 2 to display exactly two documents written by "john".
+
+```javascript
+db.books.find({ BY: "john" }).limit(2);
+```
+
+8. **Display all the books in sorted fashion**:
+
+Use the `find` method and the `sort` method to display all the documents sorted by `TITLE` in ascending order.
+
+```javascript
+db.books.find().sort({ TITLE: 1 });
+```
+
+### Summary of Operations:
+
+1. **Create Collection**: `db.createCollection("books");`
+2. **Insert Documents**: `insertMany` for multiple documents and `insertOne` for a single document.
+3. **Find Documents (Conditions)**: `find()` with query conditions and logical operators like `$or`, `$gt`, etc.
+4. **Update Document**: `updateOne()` to update a specific field.
+5. **Limit Documents**: `limit(2)` to restrict the result to two documents.
+6. **Sort Documents**: `sort({ FIELD: 1 })` for ascending order.

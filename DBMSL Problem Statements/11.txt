@@ -1,0 +1,87 @@
+### Given Table Schema:
+- **Employee** (`Emp_No`, `Emp_Name`, `Designation`, `City`, `Salary`, `Zipcode`, `County`)
+
+### 1. **Create a sequence used to generate employee numbers for the `Emp_No` column.**
+
+In Oracle, sequences are used to generate unique values, typically for primary key columns like `Emp_No`. Below is an example of how to create a sequence that will be used for generating employee numbers.
+
+```sql
+CREATE SEQUENCE emp_seq
+START WITH 1000  -- The starting value
+INCREMENT BY 1  -- Increment by 1
+NOCACHE          -- No caching of sequence values
+NOCYCLE;         -- Sequence will not restart after reaching the maximum value
+```
+
+Now, you can use this sequence to insert employee numbers into the `Emp_No` column:
+
+```sql
+INSERT INTO Employee (Emp_No, Emp_Name, Designation, City, Salary, Zipcode, County)
+VALUES (emp_seq.NEXTVAL, 'John Doe', 'Manager', 'Mumbai', 60000, '400001', 'Maharashtra');
+```
+
+### 2. **Create an Index on `County`.**
+
+To improve the performance of queries that filter by the `County` column, you can create an index on the `County` column.
+
+```sql
+CREATE INDEX idx_county ON Employee (County);
+```
+
+This index will speed up queries that involve searching or filtering based on the `County` column.
+
+### 3. **Find the zip code whose county = '071' and check whether the query uses the Index.**
+
+To find the `Zipcode` where `County` is `'071'`, you can write the following query:
+
+```sql
+SELECT Zipcode
+FROM Employee
+WHERE County = '071';
+```
+
+**Checking if the index is used:**
+
+In Oracle, you can check whether an index is being used by examining the execution plan. Use the following query to explain the plan:
+
+```sql
+EXPLAIN PLAN FOR
+SELECT Zipcode
+FROM Employee
+WHERE County = '071';
+```
+
+Then, you can check the execution plan by querying the `PLAN_TABLE`:
+
+```sql
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
+```
+
+**Observation:**
+- If the index is used, the execution plan will indicate that the query is accessing the `County` column using the `idx_county` index. You might see an operation like `INDEX RANGE SCAN` or `INDEX FULL SCAN`.
+- If the index is not used, the plan might show a `FULL TABLE SCAN`, meaning the database is scanning all rows in the `Employee` table.
+
+### 4. **Create a view for employees having salary < 50000 and staying in 'Mumbai'.**
+
+You can create a view to select employees who earn less than 50000 and reside in the city of 'Mumbai'. Here’s the SQL query to create the view:
+
+```sql
+CREATE VIEW Mumbai_Low_Salaried_Employees AS
+SELECT Emp_No, Emp_Name, Designation, City, Salary, Zipcode, County
+FROM Employee
+WHERE Salary < 50000
+  AND City = 'Mumbai';
+```
+
+You can then query the view like any other table:
+
+```sql
+SELECT * FROM Mumbai_Low_Salaried_Employees;
+```
+
+### Summary of SQL Operations:
+
+1. **Sequence for Employee Numbers**: Created a sequence `emp_seq` to generate unique employee numbers for the `Emp_No` column.
+2. **Index on `County`**: Created an index `idx_county` on the `County` column to improve query performance.
+3. **Find Zip Code by County**: Used a query to find the `Zipcode` for `County = '071'` and checked if the index is used by analyzing the execution plan.
+4. **View for Low-Salaried Employees in Mumbai**: Created a view `Mumbai_Low_Salaried_Employees` to filter employees earning less than 50000 and residing in 'Mumbai'.

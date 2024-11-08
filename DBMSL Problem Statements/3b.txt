@@ -1,0 +1,66 @@
+Here are the SQL queries based on the provided schema to address the given tasks:
+
+---
+
+### 1. **Find the Names and Salary of Employees Who Earn the Same Salary as the Minimum Salary Across All Departments**
+
+```sql
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary = (
+    SELECT MIN(Salary) 
+    FROM Employee
+);
+```
+
+---
+
+### 2. **Display the Employee ID, First Name, Last Name, and Salary of Employees Whose Salary is Above the Average for Their Department**
+
+```sql
+SELECT e.Employee_id, e.First_name, e.Last_name, e.Salary
+FROM Employee e
+JOIN Departments d ON e.department_id = d.Department_id
+WHERE e.Salary > (
+    SELECT AVG(Salary) 
+    FROM Employee 
+    WHERE department_id = e.department_id
+);
+```
+
+---
+
+### 3. **Find Employee ID, Last Name, Manager ID, and Manager Name**
+
+```sql
+SELECT e.Employee_id, e.Last_name, e.manager_id, m.Last_name AS Manager_Name
+FROM Employee e
+LEFT JOIN Employee m ON e.manager_id = m.Employee_id;
+```
+
+---
+
+### 4. **Find Names and Hire Date of Employees Hired After 'Jones'**
+
+```sql
+SELECT e.First_name, e.Last_name, e.hire_date
+FROM Employee e
+JOIN Employee m ON e.manager_id = m.Employee_id
+WHERE m.Last_name = 'Jones'
+AND e.hire_date > m.hire_date;
+```
+
+---
+
+### 5. **Get the Department Name and Number of Employees in Each Department**
+
+```sql
+SELECT d.Department_name, COUNT(e.Employee_id) AS Number_of_Employees
+FROM Departments d
+LEFT JOIN Employee e ON d.Department_id = e.department_id
+GROUP BY d.Department_name;
+```
+
+---
+
+These queries will help retrieve the necessary data based on the schema and conditions provided. Let me know if you have any further questions or need adjustments!

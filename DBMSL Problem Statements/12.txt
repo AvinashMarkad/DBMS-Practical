@@ -1,0 +1,108 @@
+Given the database schema:
+
+- **Employee** (`employee-name`, `street`, `city`)
+- **Works** (`employee-name`, `company-name`, `salary`)
+- **Company** (`company-name`, `city`)
+- **Manages** (`employee-name`, `manager-name`)
+
+Let's go through each of the queries step by step.
+
+---
+
+### 1. **Find the names of all employees who work for First Bank Corporation.**
+
+You need to join the `Employee` and `Works` tables based on the `employee-name`, and filter the results by the company name.
+
+```sql
+SELECT employee-name
+FROM works
+WHERE company-name = 'First Bank Corporation';
+```
+
+---
+
+### 2. **Find the names, street addresses, and cities of residence of all employees who work for First Bank Corporation and earn more than $10,000.**
+
+To get the names, street addresses, and cities of employees who work for "First Bank Corporation" and earn more than $10,000, join the `Employee` and `Works` tables and apply the necessary filters.
+
+```sql
+SELECT e.employee-name, e.street, e.city
+FROM employee e
+JOIN works w ON e.employee-name = w.employee-name
+WHERE w.company-name = 'First Bank Corporation'
+  AND w.salary > 10000;
+```
+
+---
+
+### 3. **Find all employees in the database who live in the same cities and on the same streets as do their managers.**
+
+This requires joining the `Employee` table with the `Manages` table, and then comparing the street and city values of employees and their managers.
+
+```sql
+SELECT e.employee-name
+FROM employee e
+JOIN manages m ON e.employee-name = m.employee-name
+JOIN employee manager ON m.manager-name = manager.employee-name
+WHERE e.city = manager.city
+  AND e.street = manager.street;
+```
+
+---
+
+### 4. **Find all employees in the database who earn more than each employee of Small Bank Corporation.**
+
+This query involves a subquery where we find all employees who earn more than any employee from "Small Bank Corporation."
+
+```sql
+SELECT e.employee-name
+FROM works e
+WHERE e.salary > ALL (
+    SELECT w.salary
+    FROM works w
+    WHERE w.company-name = 'Small Bank Corporation'
+);
+```
+
+---
+
+### 5. **Find all employees who earn more than the average salary of all employees of their company.**
+
+For this, we will use a subquery to calculate the average salary for each company, then compare each employee's salary with the average salary of their company.
+
+```sql
+SELECT e.employee-name
+FROM works e
+WHERE e.salary > (
+    SELECT AVG(w.salary)
+    FROM works w
+    WHERE w.company-name = e.company-name
+);
+```
+
+---
+
+### 6. **Find the company that has the smallest payroll.**
+
+To find the company with the smallest payroll, calculate the total salary for each company and select the company with the smallest total.
+
+```sql
+SELECT w.company-name
+FROM works w
+GROUP BY w.company-name
+ORDER BY SUM(w.salary) ASC
+FETCH FIRST 1 ROWS ONLY;
+```
+
+This query groups the employees by `company-name`, sums their salaries, orders the companies by the total salary, and selects the one with the smallest payroll.
+
+---
+
+### Summary of SQL Queries:
+
+1. **Employees of "First Bank Corporation"**: Filter employees by company name.
+2. **Employees of "First Bank Corporation" earning more than $10,000**: Join `Employee` and `Works`, apply salary filter.
+3. **Employees who live in the same cities and on the same streets as their managers**: Self-join `Employee` and `Manages` to compare city and street.
+4. **Employees earning more than every employee of "Small Bank Corporation"**: Use `ALL` in a subquery.
+5. **Employees earning more than the average salary of their company**: Compare each employee's salary with the average salary of their company.
+6. **Company with the smallest payroll**: Aggregate salaries by company and order by the smallest sum.

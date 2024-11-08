@@ -1,0 +1,64 @@
+Here's how you can create the `Library` database schema and triggers as described:
+
+### 1. Create the `Books` table:
+
+```sql
+CREATE TABLE Books (
+    AccNo INT PRIMARY KEY,
+    Title VARCHAR(255),
+    Author VARCHAR(255),
+    Publisher VARCHAR(255),
+    Count INT
+);
+```
+
+### 2. Create the `Library_Audit` table:
+
+```sql
+CREATE TABLE Library_Audit (
+    AccNo INT,
+    Title VARCHAR(255),
+    Author VARCHAR(255),
+    Publisher VARCHAR(255),
+    Count INT,
+    Action_Type VARCHAR(10), -- to track the action type (INSERT, UPDATE, DELETE)
+    Action_Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- to track the time of action
+);
+```
+
+### 3. Create the `BEFORE DELETE` trigger to log deletions:
+
+```sql
+CREATE OR REPLACE TRIGGER trg_before_delete_books
+BEFORE DELETE ON Books
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (AccNo, Title, Author, Publisher, Count, Action_Type)
+    VALUES (:OLD.AccNo, :OLD.Title, :OLD.Author, :OLD.Publisher, :OLD.Count, 'DELETE');
+END;
+```
+
+### 4. Create the `AFTER UPDATE` trigger to log updates:
+
+```sql
+CREATE OR REPLACE TRIGGER trg_after_update_books
+AFTER UPDATE ON Books
+FOR EACH ROW
+BEGIN
+    INSERT INTO Library_Audit (AccNo, Title, Author, Publisher, Count, Action_Type)
+    VALUES (:NEW.AccNo, :NEW.Title, :NEW.Author, :NEW.Publisher, :NEW.Count, 'UPDATE');
+END;
+```
+
+### Explanation of the Triggers:
+- **Trigger for Deletions (`trg_before_delete_books`)**:
+  - This trigger is fired **before** any delete operation on the `Books` table.
+  - It captures the data of the row being deleted (`:OLD`) and inserts it into the `Library_Audit` table with the action type marked as `'DELETE'`.
+
+- **Trigger for Updates (`trg_after_update_books`)**:
+  - This trigger is fired **after** any update operation on the `Books` table.
+  - It captures the updated data (`:NEW`) and inserts it into the `Library_Audit` table with the action type marked as `'UPDATE'`.
+
+### Summary:
+- The `Books` table holds the library book details.
+- The `Library_Audit` table keeps a log of changes made to the `Books` table (both deletions and updates), with the type of action (DELETE or UPDATE) and the timestamp of the action.

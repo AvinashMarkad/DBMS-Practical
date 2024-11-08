@@ -1,0 +1,145 @@
+Here's the procedure without comments:
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE HandleBookReturn (
+    IN p_Roll_no INT,
+    IN p_NameofBook VARCHAR(100)
+)
+BEGIN
+    DECLARE v_DateofIssue DATE;
+    DECLARE v_DaysBorrowed INT;
+    DECLARE v_FineAmt DECIMAL(10, 2);
+    DECLARE v_CurrentDate DATE;
+    
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An error occurred while processing the book return.' AS Error_Message;
+    END;
+
+    SET v_CurrentDate = CURDATE();
+    SET v_FineAmt = 0;
+    
+    SELECT DateofIssue INTO v_DateofIssue
+    FROM Borrower
+    WHERE Roll_no = p_Roll_no AND NameofBook = p_NameofBook;
+
+    SET v_DaysBorrowed = DATEDIFF(v_CurrentDate, v_DateofIssue);
+
+    IF v_DaysBorrowed > 15 AND v_DaysBorrowed <= 30 THEN
+        SET v_FineAmt = (v_DaysBorrowed - 15) * 5;
+    ELSIF v_DaysBorrowed > 30 THEN
+        SET v_FineAmt = (30 - 15) * 5 + (v_DaysBorrowed - 30) * 50;
+    END IF;
+
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Roll_no = p_Roll_no AND NameofBook = p_NameofBook;
+
+    IF v_FineAmt > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (p_Roll_no, v_CurrentDate, v_FineAmt);
+    END IF;
+    
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+
+
+
+
+
+
+
+
+
+
+
+
+Here's a stored procedure that implements the described functionality in PL/SQL. The procedure accepts `Roll_no` and `NameofBook` as inputs, checks the number of days since the book was issued, calculates the fine if applicable, updates the status, and handles exceptions.
+
+---
+
+### Stored Procedure in PL/SQL
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE HandleBookReturn (
+    IN p_Roll_no INT,
+    IN p_NameofBook VARCHAR(100)
+)
+BEGIN
+    DECLARE v_DateofIssue DATE;
+    DECLARE v_DaysBorrowed INT;
+    DECLARE v_FineAmt DECIMAL(10, 2);
+    DECLARE v_CurrentDate DATE;
+    
+    -- User-defined exception
+    DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SELECT 'An error occurred while processing the book return.' AS Error_Message;
+    END;
+
+    -- Initialize variables
+    SET v_CurrentDate = CURDATE();
+    SET v_FineAmt = 0;
+    
+    -- Get the Date of Issue
+    SELECT DateofIssue INTO v_DateofIssue
+    FROM Borrower
+    WHERE Roll_no = p_Roll_no AND NameofBook = p_NameofBook;
+
+    -- Calculate the number of days the book was borrowed
+    SET v_DaysBorrowed = DATEDIFF(v_CurrentDate, v_DateofIssue);
+
+    -- Calculate fine amount based on days borrowed
+    IF v_DaysBorrowed > 15 AND v_DaysBorrowed <= 30 THEN
+        SET v_FineAmt = (v_DaysBorrowed - 15) * 5;
+    ELSIF v_DaysBorrowed > 30 THEN
+        SET v_FineAmt = (30 - 15) * 5 + (v_DaysBorrowed - 30) * 50;
+    END IF;
+
+    -- Update the status of the book to 'R' (Returned)
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Roll_no = p_Roll_no AND NameofBook = p_NameofBook;
+
+    -- Insert fine details into Fine table if there is a fine amount
+    IF v_FineAmt > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (p_Roll_no, v_CurrentDate, v_FineAmt);
+    END IF;
+    
+    -- Commit the transaction
+    COMMIT;
+END;
+//
+
+DELIMITER ;
+```
+
+---
+
+### Explanation
+1. **Input Parameters**: The procedure accepts `Roll_no` and `NameofBook` from the user.
+2. **Fetching Date of Issue**: Retrieves `DateofIssue` from the `Borrower` table.
+3. **Calculating Days Borrowed**: Uses `DATEDIFF` to calculate the number of days between the issue date and the current date.
+4. **Fine Calculation**:
+   - If days are between 15 and 30, the fine is ₹5 per day for days exceeding 15.
+   - If days exceed 30, the fine is ₹5 per day for the first 15 extra days, then ₹50 per day for additional days.
+5. **Updating Status**: Updates the `Status` column to `'R'` to indicate the book is returned.
+6. **Inserting Fine Details**: If a fine is applicable, inserts the fine record into the `Fine` table.
+7. **Exception Handling**: Uses a named exception handler to handle errors gracefully.
+
+### Notes
+- **Transaction Handling**: The `COMMIT` statement ensures changes are saved to the database.
+- **Error Handling**: The exception handler provides a custom error message in case of failure.
+
+Let me know if you need any modifications or further explanation!

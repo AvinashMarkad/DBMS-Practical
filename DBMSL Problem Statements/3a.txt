@@ -1,0 +1,61 @@
+Here are the SQL queries for the given tasks based on the provided schema:
+
+### 1. **Find the Names and Salaries of Employees with a Higher Salary than the Employee Whose Last Name is 'Singh'**
+
+```sql
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (
+    SELECT Salary 
+    FROM Employee 
+    WHERE Last_name = 'Singh'
+);
+```
+
+### 2. **Find the Names of Employees Who Have a Manager and Work for a Department Based in the United States**
+
+```sql
+SELECT e.First_name, e.Last_name
+FROM Employee e
+JOIN Departments d ON e.department_id = d.Department_id
+JOIN Locations l ON d.Location_id = l.location_id
+WHERE e.manager_id IS NOT NULL 
+AND l.country_id = 'US';
+```
+
+### 3. **Find the Names of All Employees Who Work in the IT Department**
+
+```sql
+SELECT e.First_name, e.Last_name
+FROM Employee e
+JOIN Departments d ON e.department_id = d.Department_id
+WHERE d.Department_name = 'IT';
+```
+
+### 4. **Find the Names and Salaries of Employees Whose Salary is Greater than the Average Salary**
+
+```sql
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+WHERE e.Salary > (
+    SELECT AVG(Salary) 
+    FROM Employee
+);
+```
+
+### 5. **Find the Names and Salaries of Employees Who Earn More than the Average Salary and Work in Any of the IT Departments**
+
+```sql
+SELECT e.First_name, e.Last_name, e.Salary
+FROM Employee e
+JOIN Departments d ON e.department_id = d.Department_id
+WHERE e.Salary > (
+    SELECT AVG(Salary) 
+    FROM Employee
+)
+AND d.Department_name = 'IT';
+```
+
+---
+
+These queries should retrieve the necessary data from the `Employee`, `Departments`, and `Locations` tables as requested. Let me know if you need any further assistance or adjustments!
